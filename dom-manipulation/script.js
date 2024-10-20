@@ -161,15 +161,26 @@ function saveQuotes() {
 
 // Export quotes to JSON file
 function exportToJson() {
-  const json = JSON.stringify(quotes, null, 2); // Format JSON
-  const blob = new Blob([json], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
+  const json = JSON.stringify(quotes, null, 2); // Convert quotes array to JSON format
+  const blob = new Blob([json], { type: "application/json" }); // Create a Blob from the JSON
+  const url = URL.createObjectURL(blob); // Create a URL for the Blob
 
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "quotes.json";
-  a.click();
-  URL.revokeObjectURL(url); // Clean up
+  // Create a temporary button element for downloading
+  const button = document.createElement("button");
+  button.innerText = "Download Quotes";
+  button.style.display = "none"; // Hide the button
+  document.body.appendChild(button); // Append to the body
+
+  // Set the download attribute
+  button.onclick = function () {
+    const a = document.createElement("a"); // Create a temporary anchor element
+    a.href = url; // Set the href to the Blob URL
+    a.download = "quotes.json"; // Set the filename for the download
+    a.click(); // Programmatically click the anchor to trigger the download
+    URL.revokeObjectURL(url); // Clean up the URL object
+    document.body.removeChild(button); // Remove the button after download
+  };
+  button.click(); // Trigger the button click to start the download
 }
 
 // Import quotes from JSON file
