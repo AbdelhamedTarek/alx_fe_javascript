@@ -1,3 +1,4 @@
+// Initialize an array to store quotes
 let quotes = [
   {
     text: "The greatest glory in living lies not in never falling, but in rising every time we fall.",
@@ -13,6 +14,7 @@ let quotes = [
   },
 ];
 
+// Function to show a random quote
 function showRandomQuote() {
   const randomIndex = Math.floor(Math.random() * quotes.length);
   const quote = quotes[randomIndex];
@@ -36,5 +38,6 @@ function addQuote() {
   }
 }
 
+// Event listeners
 document.getElementById("newQuote").addEventListener("click", showRandomQuote);
 document.getElementById("addQuoteButton").addEventListener("click", addQuote);
