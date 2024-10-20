@@ -62,7 +62,7 @@ async function syncQuotes() {
   if (mergedQuotes) {
     quotes = mergedQuotes;
     saveQuotes();
-    displayNotification("Quotes synchronized with the server.");
+    displayNotification("Quotes synced with server!"); // Notification added here
   }
 }
 
@@ -83,6 +83,15 @@ function mergeQuotes(localQuotes, serverQuotes) {
   });
 
   return updatedQuotes;
+}
+
+// Function to display notification
+function displayNotification(message) {
+  const notificationElement = document.getElementById("notification");
+  notificationElement.textContent = message;
+  setTimeout(() => {
+    notificationElement.textContent = ""; // Clear message after a few seconds
+  }, 3000);
 }
 
 // Function to show quotes based on the selected category
@@ -192,7 +201,6 @@ function importFromJsonFile(event) {
     populateCategories();
     displayQuotes();
   };
-  fileReader.readAsText(event.target.files[0]);
 }
 
 // Call the functions when the page loads
