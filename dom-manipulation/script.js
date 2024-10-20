@@ -1,4 +1,3 @@
-// Initialize an array to store quotes, loading from local storage if available
 let quotes = JSON.parse(localStorage.getItem("quotes")) || [
   {
     text: "The greatest glory in living lies not in never falling, but in rising every time we fall.",
@@ -18,6 +17,66 @@ let quotes = JSON.parse(localStorage.getItem("quotes")) || [
 const lastSelectedCategory =
   localStorage.getItem("lastSelectedCategory") || "all";
 document.getElementById("categoryFilter").value = lastSelectedCategory;
+
+// Simulated server endpoint
+const serverUrl = "https://jsonplaceholder.typicode.com/posts"; // Mock API
+
+// Function to fetch quotes from the simulated server
+async function fetchQuotesFromServer() {
+  try {
+    const response = await fetch(serverUrl);
+    const data = await response.json();
+    // Simulate processing quotes from server
+    const serverQuotes = data.slice(0, 5).map((item) => ({
+      text: item.title,
+      category: "Server", // Default category for simulation
+    }));
+    return serverQuotes;
+  } catch (error) {
+    console.error("Error fetching quotes:", error);
+    return [];
+  }
+}
+
+// Sync quotes with the server periodically
+async function syncQuotes() {
+  const serverQuotes = await fetchQuotesFromServer();
+  const mergedQuotes = mergeQuotes(quotes, serverQuotes);
+  if (mergedQuotes) {
+    quotes = mergedQuotes;
+    saveQuotes();
+    displayNotification("Quotes synchronized with the server.");
+  }
+}
+
+// Merge local quotes with server quotes
+function mergeQuotes(localQuotes, serverQuotes) {
+  const updatedQuotes = [...localQuotes];
+
+  serverQuotes.forEach((serverQuote) => {
+    const existingIndex = updatedQuotes.findIndex(
+      (localQuote) => localQuote.text === serverQuote.text
+    );
+    if (existingIndex === -1) {
+      updatedQuotes.push(serverQuote);
+    } else {
+      // Conflict resolution: Server data takes precedence
+      updatedQuotes[existingIndex] = serverQuote;
+      displayNotification(`Conflict resolved for quote: "${serverQuote.text}"`);
+    }
+  });
+
+  return updatedQuotes;
+}
+
+// Display notifications to users
+function displayNotification(message) {
+  const notificationArea = document.getElementById("notification");
+  notificationArea.innerHTML = message;
+  setTimeout(() => {
+    notificationArea.innerHTML = "";
+  }, 5000); // Clear after 5 seconds
+}
 
 // Function to show quotes based on the selected category
 function displayQuotes(category = "all") {
@@ -41,9 +100,6 @@ function displayQuotes(category = "all") {
 function showRandomQuote() {
   const selectedCategory = document.getElementById("categoryFilter").value;
   displayQuotes(selectedCategory);
-
-  // Store the last viewed quote in session storage
-  sessionStorage.setItem("lastQuote", JSON.stringify(quote));
 }
 
 // Function to populate categories in the dropdown
@@ -134,6 +190,7 @@ function importFromJsonFile(event) {
 window.onload = function () {
   populateCategories(); // Populate categories
   showRandomQuote(); // Show a random quote based on the last selected category
+  setInterval(syncQuotes, 30000); // Sync with server every 30 seconds
 };
 
 // Event listeners
