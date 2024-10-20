@@ -18,7 +18,7 @@ const lastSelectedCategory =
   localStorage.getItem("lastSelectedCategory") || "all";
 document.getElementById("categoryFilter").value = lastSelectedCategory;
 
-// Simulated server endpoint
+// Simulated server endpoint for posting data
 const serverUrl = "https://jsonplaceholder.typicode.com/posts"; // Mock API
 
 // Function to fetch quotes from the simulated server
@@ -26,7 +26,6 @@ async function fetchQuotesFromServer() {
   try {
     const response = await fetch(serverUrl);
     const data = await response.json();
-    // Simulate processing quotes from server
     const serverQuotes = data.slice(0, 5).map((item) => ({
       text: item.title,
       category: "Server", // Default category for simulation
@@ -35,6 +34,24 @@ async function fetchQuotesFromServer() {
   } catch (error) {
     console.error("Error fetching quotes:", error);
     return [];
+  }
+}
+
+// Function to post a new quote to the server
+async function postQuoteToServer(quote) {
+  try {
+    const response = await fetch(serverUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(quote),
+    });
+    if (!response.ok) throw new Error("Network response was not ok");
+    const data = await response.json();
+    console.log("Quote posted successfully:", data);
+  } catch (error) {
+    console.error("Error posting quote:", error);
   }
 }
 
@@ -60,22 +77,12 @@ function mergeQuotes(localQuotes, serverQuotes) {
     if (existingIndex === -1) {
       updatedQuotes.push(serverQuote);
     } else {
-      // Conflict resolution: Server data takes precedence
       updatedQuotes[existingIndex] = serverQuote;
       displayNotification(`Conflict resolved for quote: "${serverQuote.text}"`);
     }
   });
 
   return updatedQuotes;
-}
-
-// Display notifications to users
-function displayNotification(message) {
-  const notificationArea = document.getElementById("notification");
-  notificationArea.innerHTML = message;
-  setTimeout(() => {
-    notificationArea.innerHTML = "";
-  }, 5000); // Clear after 5 seconds
 }
 
 // Function to show quotes based on the selected category
@@ -105,7 +112,7 @@ function showRandomQuote() {
 // Function to populate categories in the dropdown
 function populateCategories() {
   const categoryFilter = document.getElementById("categoryFilter");
-  const categories = [...new Set(quotes.map((q) => q.category))]; // Unique categories
+  const categories = [...new Set(quotes.map((q) => q.category))];
 
   categories.forEach((category) => {
     const option = document.createElement("option");
@@ -118,19 +125,21 @@ function populateCategories() {
 // Function to filter quotes based on selected category
 function filterQuotes() {
   const selectedCategory = document.getElementById("categoryFilter").value;
-  localStorage.setItem("lastSelectedCategory", selectedCategory); // Save last selected category
+  localStorage.setItem("lastSelectedCategory", selectedCategory);
   displayQuotes(selectedCategory);
 }
 
 // Function to create a new quote
-function addQuote() {
+async function addQuote() {
   const quoteText = document.getElementById("newQuoteText").value;
   const quoteCategory = document.getElementById("newQuoteCategory").value;
 
   if (quoteText && quoteCategory) {
-    quotes.push({ text: quoteText, category: quoteCategory });
+    const newQuote = { text: quoteText, category: quoteCategory };
+    quotes.push(newQuote);
+    await postQuoteToServer(newQuote); // Post quote to server
     saveQuotes(); // Save quotes to local storage
-    updateCategories(quoteCategory); // Update categories dropdown
+    updateCategories(quoteCategory);
     document.getElementById("newQuoteText").value = ""; // Clear input field
     document.getElementById("newQuoteCategory").value = ""; // Clear input field
     alert("Quote added successfully!");
@@ -178,10 +187,10 @@ function importFromJsonFile(event) {
   fileReader.onload = function (event) {
     const importedQuotes = JSON.parse(event.target.result);
     quotes.push(...importedQuotes);
-    saveQuotes(); // Update local storage
+    saveQuotes();
     alert("Quotes imported successfully!");
-    populateCategories(); // Update categories in the dropdown
-    displayQuotes(); // Display quotes after import
+    populateCategories();
+    displayQuotes();
   };
   fileReader.readAsText(event.target.files[0]);
 }
