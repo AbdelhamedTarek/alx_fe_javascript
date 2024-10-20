@@ -14,17 +14,17 @@ let quotes = [
   },
 ];
 
-// Function to show a random quote
+// Function to show a random quote using innerHTML
 function showRandomQuote() {
   if (quotes.length === 0) {
-    document.getElementById("quoteDisplay").innerText = "No quotes available.";
+    document.getElementById("quoteDisplay").innerHTML = "No quotes available.";
     return;
   }
   const randomIndex = Math.floor(Math.random() * quotes.length);
   const quote = quotes[randomIndex];
   document.getElementById(
     "quoteDisplay"
-  ).innerText = `"${quote.text}" - ${quote.category}`;
+  ).innerHTML = `"${quote.text}" - <strong>${quote.category}</strong>`;
 }
 
 // Function to add a new quote
