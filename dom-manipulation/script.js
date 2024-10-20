@@ -1,4 +1,28 @@
 // Initialize an array to store quotes
+function createAddQuoteForm() {
+  const formDiv = document.createElement("div");
+
+  const textInput = document.createElement("input");
+  textInput.id = "newQuoteText";
+  textInput.type = "text";
+  textInput.placeholder = "Enter a new quote";
+
+  const categoryInput = document.createElement("input");
+  categoryInput.id = "newQuoteCategory";
+  categoryInput.type = "text";
+  categoryInput.placeholder = "Enter quote category";
+
+  const addButton = document.createElement("button");
+  addButton.innerText = "Add Quote";
+  addButton.onclick = addQuote; // Attach the addQuote function
+
+  formDiv.appendChild(textInput);
+  formDiv.appendChild(categoryInput);
+  formDiv.appendChild(addButton);
+
+  document.body.appendChild(formDiv);
+}
+
 let quotes = [
   {
     text: "The greatest glory in living lies not in never falling, but in rising every time we fall.",
@@ -26,6 +50,10 @@ function showRandomQuote() {
     "quoteDisplay"
   ).innerHTML = `"${quote.text}" - <strong>${quote.category}</strong>`;
 }
+// Function to create the add quote form
+
+// Call the createAddQuoteForm function to generate the form when the page loads
+createAddQuoteForm();
 
 // Function to add a new quote
 function addQuote() {
